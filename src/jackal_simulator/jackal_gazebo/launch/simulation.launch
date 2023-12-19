@@ -1,0 +1,78 @@
+<launch>
+  <arg name="use_map_topic" default="true"/>
+  <arg name="scan_topic" default="$(eval optenv('JACKAL_LASER_TOPIC', '/scan'))" />
+  <arg name="use_sim_time" default="true" />
+  <arg name="gui" default="true" />
+  <arg name="headless" default="false" />
+ 
+  <!-- Short-term hack to support the original front_laser:=true argument for spawning
+       the simulator. This will be removed in favour of using the config:=x arg instead. -->
+  <arg name="front_laser" default="true" />
+  <arg name="default_config" value="front_laser" if="$(arg front_laser)" />
+  <arg name="default_config" value="base" unless="$(arg front_laser)" />
+  <!-- Configuration of Jackal which you would like to simulate.
+       See jackal_description for details. -->
+  <arg name="config" default="$(arg default_config)" />
+  <!-- Optionally enable teleop for the simulation -->
+  <arg name="joystick" default="false" />
+
+  <arg name="global_frame" value="map" />
+  <arg name="x" default="2.5"/>
+  <arg name="y" default="0.0"/>
+  <arg name="z" default="0.0"/>
+  <arg name="yaw" default="-1.57"/>
+
+
+
+ <!--  ************** launch cpr inspection environent  *************** -->\
+<param name="office_geom" command="$(find xacro)/xacro --inorder '$(find cpr_office_gazebo)/urdf/office_geometry.urdf.xacro'" />
+<arg name="world_name" default="$(find cpr_office_gazebo)/worlds/actually_empty_world.world" />
+    <arg name="world_x" default="0.0"/>
+    <arg name="world_y" default="0.0"/>
+    <arg name="world_z" default="0.0"/>
+    <arg name="world_yaw" default="0.0"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+      <arg name="debug" value="0" />
+      <arg name="gui" value="$(arg gui)" />
+      <arg name="use_sim_time" value="$(arg use_sim_time)" />
+      <arg name="headless" value="$(arg headless)" />
+      <arg name="world_name" value="$(arg world_name)" />
+    </include>
+
+   <node name="office_world_spawner" pkg="gazebo_ros" type="spawn_model"
+      args="-urdf -model office_geometry -param office_geom -x $(arg world_x) -y $(arg world_y) -z $(arg world_z) -Y $(arg world_yaw)" />
+
+    
+
+
+
+   <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+
+        <remap from="cloud_in" to="mid/points"/>
+        <remap from="scan" to="/scan"/>
+  </node>
+
+  <!--  ****** Maps *****  -->
+  <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_filename)" output="screen">
+    <param name="frame_id" value="$(arg global_frame)"/>
+  </node> -->
+
+
+  <!--  ****** Start Gazebo and launch world model *****  -->
+
+  <!-- Spawn Jackal -->
+  <include file="$(find jackal_gazebo)/launch/spawn_jackal.launch">
+    <arg name="x" value="$(arg x)" />
+    <arg name="y" value="$(arg y)" />
+    <arg name="z" value="$(arg z)" />
+    <arg name="yaw" value="$(arg yaw)" />
+    <arg name="config" value="$(arg config)" />
+    <arg name="joystick" value="$(arg joystick)" />
+  </include>
+
+  <!--  **************** Visualisation ****************  -->
+  
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find move_base_benchmark)/launch/rviz_navigation.rviz"/> -->
+
+</launch>

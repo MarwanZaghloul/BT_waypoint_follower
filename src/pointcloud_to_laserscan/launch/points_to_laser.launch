@@ -1,0 +1,12 @@
+<launch>
+
+    <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+      <remap from="cloud_in" to="/ouster/points"/>
+      <remap from="scan" to="base_scan" />
+       <param name="range_max" value="100.0"/> 
+       <param name="min_height" value="0.0"/> 
+       <param name="max_height" value="2.0"/> 
+       
+    </node>
+
+</launch>
