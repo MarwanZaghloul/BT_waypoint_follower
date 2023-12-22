@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 3.5)
 project(bt_nav_client)
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   behaviortree_cpp_v3
   actionlib
   actionlib_msgs
   geometry_msgs
+  move_base
 )
 
 catkin_package(

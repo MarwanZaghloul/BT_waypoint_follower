@@ -61,7 +61,6 @@ class SendGoalActionNode : public BT::RosActionNode<move_base_msgs::MoveBaseActi
 public:
   SendGoalActionNode(ros::NodeHandle& nh, const std::string& name, const BT::NodeConfiguration& config)
     : BT::RosActionNode<move_base_msgs::MoveBaseAction>(nh, name, config)
-    , nh_(nh)
     , rviz_goal_subscriber_(nh, "/move_base_simple/goal")
   {
     action_client = new MoveBaseClient("move_base", true);
@@ -105,7 +104,7 @@ public:
 
   static BT::PortsList providedPorts()
   {
-    return { BT::InputPort<geometry_msgs::PoseStamped>("goal") };
+    return {};
   }
 
   ~SendGoalActionNode()
@@ -114,7 +113,7 @@ public:
   }
 
 private:
-  ros::NodeHandle nh_;
+
   GoalSubscriber rviz_goal_subscriber_;
   MoveBaseClient* action_client;
 };
@@ -122,8 +121,8 @@ private:
 void registerMoveBaseNodes(BT::BehaviorTreeFactory& factory, ros::NodeHandle& node_handle)
 {
   // Create instances of your custom nodes
-  CheckGoalsQueueNode checkGoalsQueueNode("CheckGoalsQueue", BT::NodeConfiguration());
-  SendGoalActionNode sendGoalActionNode(node_handle, "SendGoal", BT::NodeConfiguration());
+  //CheckGoalsQueueNode checkGoalsQueueNode("CheckGoalsQueue", BT::NodeConfiguration());
+  //SendGoalActionNode sendGoalActionNode(node_handle, "SendGoal", BT::NodeConfiguration());
 
   // Register the nodes with the factory
   factory.registerNodeType<CheckGoalsQueueNode>("CheckGoalsQueue");
