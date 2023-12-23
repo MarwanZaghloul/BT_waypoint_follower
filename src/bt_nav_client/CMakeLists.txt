@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 project(bt_nav_client)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+find_package(behaviortree_cpp_v3)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   move_base
 )
-
+find_package(Boost REQUIRED COMPONENTS system)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
@@ -31,7 +31,7 @@ add_library(${PROJECT_NAME}
 )
 
 add_executable(move_base_bt_client src/bt_action_client.cpp)
-target_link_libraries(move_base_bt_client ${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(move_base_bt_client  behaviortree_cpp_v3 ${PROJECT_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 install(
   TARGETS ${PROJECT_NAME} move_base_bt_client
@@ -40,7 +40,7 @@ install(
 )
 
 install(
-  DIRECTORY trees
+  DIRECTORY include/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 

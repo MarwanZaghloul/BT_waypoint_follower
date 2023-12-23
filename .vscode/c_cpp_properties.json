@@ -11,6 +11,7 @@
         "/home/marwan/ros_ws/Behavior-Navigation/src/bt_nav_client/include/**",
         "/home/marwan/ros_ws/Behavior-Navigation/src/move_base_swp/include/**",
         "/home/marwan/ros_ws/Behavior-Navigation/src/pointcloud_to_laserscan/include/**",
+        "/home/marwan/ros_ws/Behavior-Navigation/src/BehaviorTree.CPP/include/**",
         "/usr/include/**"
       ],
       "name": "ROS",

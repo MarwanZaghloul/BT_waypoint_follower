@@ -56,12 +56,73 @@ public:
   }
 };
 
-class SendGoalActionNode : public BT::RosActionNode<move_base_msgs::MoveBaseAction>
+// class SendGoalActionNode : public BT::RosActionNode<move_base_msgs::MoveBaseAction>
+// {
+// public:
+//   SendGoalActionNode(ros::NodeHandle& nh, const std::string& name, const BT::NodeConfiguration& config)
+//     : BT::RosActionNode<move_base_msgs::MoveBaseAction>(nh, name, config)
+//     , rviz_goal_subscriber_(nh, "/move_base_simple/goal")
+//   {
+//     action_client = new MoveBaseClient("move_base", true);
+
+//     // Wait for the action server to come up
+//     if (!action_client->isServerConnected())
+//       action_client->waitForServer(ros::Duration(10.0));
+//   }
+
+//   virtual bool sendGoal(GoalType& goal) override
+//   {
+//     if (!goal_queue.empty())
+//     {
+//       goal.target_pose = goal_queue.front();
+//       goal_queue.pop();
+//       ROS_INFO("Sending goal to MoveBase");
+//       action_client->sendGoal(goal);
+//       return true;
+//     }
+//     else
+//     {
+//       ROS_WARN("No goal received from RViz");
+//       return false;
+//     }
+//   }
+
+//   virtual BT::NodeStatus onResult(const ResultType& res) override
+//   {
+//     // Process the result (print if the goal is reached or not)
+//     if (action_client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+//     {
+//       ROS_INFO("MoveBase goal achieved");
+//       return BT::NodeStatus::SUCCESS;
+//     }
+//     else
+//     {
+//       ROS_INFO("MoveBase goal not achieved");
+//       return BT::NodeStatus::FAILURE;
+//     }
+//   }
+
+//   static BT::PortsList providedPorts()
+//   {
+//     return {};
+//   }
+
+//   ~SendGoalActionNode()
+//   {
+//     delete action_client;
+//   }
+
+// private:
+
+//   GoalSubscriber rviz_goal_subscriber_;
+//   MoveBaseClient* action_client;
+// };
+
+class SendGoalActionNode : public BT::SyncActionNode
 {
 public:
-  SendGoalActionNode(ros::NodeHandle& nh, const std::string& name, const BT::NodeConfiguration& config)
-    : BT::RosActionNode<move_base_msgs::MoveBaseAction>(nh, name, config)
-    , rviz_goal_subscriber_(nh, "/move_base_simple/goal")
+  SendGoalActionNode(const std::string& name, const BT::NodeConfiguration& config)
+    : BT::SyncActionNode(name, config)
   {
     action_client = new MoveBaseClient("move_base", true);
 
@@ -70,34 +131,27 @@ public:
       action_client->waitForServer(ros::Duration(10.0));
   }
 
-  virtual bool sendGoal(GoalType& goal) override
+  BT::NodeStatus tick() override
   {
+    // Check if there is a goal in the queue
     if (!goal_queue.empty())
     {
-      goal.target_pose = goal_queue.front();
+      // Extract the goal from the queue
+      geometry_msgs::PoseStamped goal = goal_queue.front();
       goal_queue.pop();
-      ROS_INFO("Sending goal to MoveBase");
-      action_client->sendGoal(goal);
-      return true;
-    }
-    else
-    {
-      ROS_WARN("No goal received from RViz");
-      return false;
-    }
-  }
 
-  virtual BT::NodeStatus onResult(const ResultType& res) override
-  {
-    // Process the result (print if the goal is reached or not)
-    if (action_client->getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-    {
-      ROS_INFO("MoveBase goal achieved");
+      // Construct the MoveBase goal
+      move_base_msgs::MoveBaseGoal move_base_goal;
+      move_base_goal.target_pose = goal;
+
+      // Send the goal to MoveBase
+      action_client->sendGoal(move_base_goal);
+
       return BT::NodeStatus::SUCCESS;
     }
     else
     {
-      ROS_INFO("MoveBase goal not achieved");
+      ROS_WARN("No goal received from RViz");
       return BT::NodeStatus::FAILURE;
     }
   }
@@ -113,20 +167,7 @@ public:
   }
 
 private:
-
-  GoalSubscriber rviz_goal_subscriber_;
+  
   MoveBaseClient* action_client;
 };
-
-void registerMoveBaseNodes(BT::BehaviorTreeFactory& factory, ros::NodeHandle& node_handle)
-{
-  // Create instances of your custom nodes
-  //CheckGoalsQueueNode checkGoalsQueueNode("CheckGoalsQueue", BT::NodeConfiguration());
-  //SendGoalActionNode sendGoalActionNode(node_handle, "SendGoal", BT::NodeConfiguration());
-
-  // Register the nodes with the factory
-  factory.registerNodeType<CheckGoalsQueueNode>("CheckGoalsQueue");
-  BT::RegisterRosAction<SendGoalActionNode>(factory, "SendGoal", node_handle);
-}
-
-#endif  // BT_NAV_CLIENT
+#endif
