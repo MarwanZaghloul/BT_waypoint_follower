@@ -23,7 +23,7 @@ TrajectoryPlannerROS:
   # Goal Tolerance Parameters
   yaw_goal_tolerance: 0.157
   xy_goal_tolerance: 0.25
-  latch_xy_goal_tolerance: false
+  latch_xy_goal_tolerance: true
 
   # Forward Simulation Parameters
   #make sim_time > 2.0 for espically robot pass through the narrow passway 4.0 is good

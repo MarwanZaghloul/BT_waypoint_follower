@@ -14,7 +14,7 @@
   </include>
 
   <!--- Run Move Base -->
- <include file="$(find patrolling_center)/launch/move_base_swp.launch" />
+ <include file="$(find move_base_swp)/launch/move_base_swp.launch" />
  
  
 
